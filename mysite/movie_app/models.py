@@ -1,3 +1,5 @@
+from tkinter.constants import CASCADE
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import PositiveSmallIntegerField
@@ -28,7 +30,7 @@ class Category(models.Model):
 
 class Genre(models.Model):
     genre_name = models.CharField(max_length=30)
-    category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name='genres')
 
     def __str__(self):
         return self.genre_name
@@ -62,7 +64,7 @@ class ActorImage(models.Model):
 
 class Movie(models.Model):
     movie_name = models.CharField(max_length=150)
-    slogan = models.CharField(max_length=200,verbose_name='Слоган')
+    slogan = models.CharField(max_length=200,verbose_name='Слоган',null=True,blank=True)
     year = models.DateField()
     country = models.ManyToManyField(Country)
     director = models.ManyToManyField(Director)
@@ -76,7 +78,9 @@ class Movie(models.Model):
     movie_type = models.CharField(max_length=30,choices=MovieTypeChoices)
     movie_time = models.PositiveSmallIntegerField()
     actor = models.ManyToManyField(Actor)
+    movie_poster = models.ImageField(upload_to='movie_images/')
     description = models.TextField()
+    trailer = models.URLField()
     movie_status = models.CharField(max_length=30)
 
     def __str__(self):
@@ -89,6 +93,43 @@ class MovieVideo(models.Model):
 
     def __str__(self):
         return f'{self.movie},{self.video_name}'
+
+class MovieFrame(models.Model):
+    movie = models.ForeignKey(Movie,on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='movie_moments')
+
+    def __str__(self):
+        return f'{self.movie},{self.image}'
+
+
+class Review(models.Model):
+    user = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie,on_delete=models.CASCADE)
+    parent = models.ForeignKey('self',on_delete=models.CASCADE,null=True,blank=True)
+    stars = models.PositiveIntegerField(choices=[(i,str(i))for i in range(1,11)])
+    comment = models.TextField()
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user},{self.movie},{self.stars}'
+
+class ReviewLike(models.Model):
+    user = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+    review = models.ForeignKey(Review,on_delete=models.CASCADE)
+    like = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user},{self.like}'
+
+class History(models.Model):
+    user = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie,on_delete=models.CASCADE)
+    watched_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user},{self.movie}'
+
+
 
 
 
