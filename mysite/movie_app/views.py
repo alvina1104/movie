@@ -9,6 +9,10 @@ from .models import (UserProfile,Category,Genre,Country,Director,
                      Review,ReviewLike,History)
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import viewsets,generics
+from django_filters.rest_framework import DjangoFilterBackend
+from .filter import MovieFilter
+from rest_framework.filters import SearchFilter,OrderingFilter
+from .pagination import MovieListPagination,CategoryListPagination,GenreListPagination
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -18,6 +22,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategoryListSerializer
+    pagination_class = CategoryListPagination
 
 class CategoryDetailAPIView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
@@ -26,6 +31,7 @@ class CategoryDetailAPIView(generics.RetrieveAPIView):
 class GenreListAPIView(generics.ListAPIView):
     queryset = Genre.objects.all()
     serializer_class = GenreListSerializer
+    pagination_class = GenreListPagination
 
 class GenreDetailAPIView(generics.RetrieveAPIView):
     queryset = Genre.objects.all()
@@ -51,6 +57,11 @@ class ActorImageViewSet(viewsets.ModelViewSet):
 class MovieListAPIView(generics.ListAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieListSerializer
+    filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
+    filterset_class = MovieFilter
+    search_fields = ['movie_name']
+    ordering_fields= ['year']
+    pagination_class = MovieListPagination
 
 class MovieVideoViewSet(viewsets.ModelViewSet):
     queryset = MovieVideo.objects.all()

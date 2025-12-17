@@ -67,7 +67,7 @@ class Movie(models.Model):
     slogan = models.CharField(max_length=200,verbose_name='Слоган',null=True,blank=True)
     year = models.DateField()
     country = models.ManyToManyField(Country)
-    director = models.ManyToManyField(Director)
+    director = models.ManyToManyField(Director,null=True,blank=True)
     genre = models.ManyToManyField(Genre)
     MovieTypeChoices = (
         ('360p','360p'),
@@ -77,11 +77,11 @@ class Movie(models.Model):
         ('1080p Ultra','1080p Ultra'))
     movie_type = models.CharField(max_length=30,choices=MovieTypeChoices)
     movie_time = models.PositiveSmallIntegerField()
-    actor = models.ManyToManyField(Actor)
+    actor = models.ManyToManyField(Actor,null=True,blank=True)
     movie_poster = models.ImageField(upload_to='movie_images/')
     description = models.TextField()
     trailer = models.URLField()
-    movie_status = models.CharField(max_length=30)
+    movie_status = models.CharField(max_length=30, choices=StatusChoices, default='simple')
 
     def __str__(self):
         return self.movie_name
