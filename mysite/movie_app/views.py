@@ -1,12 +1,11 @@
-from .serializer import (UserProfileSerializer,CategoryListSerializer,
-                         CategoryDetailSerializer,GenreListSerializer,
-                         GenreDetailSerializer,
-                         CountrySerializer,DirectorSerializer,ActorSerializer,ActorImageSerializer,
-                         MovieListSerializer,MovieVideoSerializer,MovieFrameSerializer,
+from .serializer import (UserProfileSerializer,CategoryListSerializer,CategoryDetailSerializer,
+                         GenreListSerializer,GenreNameSerializer,GenreDetailSerializer,
+                         CountrySerializer,DirectorSerializer,ActorSerializer,
+                         ActorImageSerializer,MovieListSerializer,MovieDetailSerializer,
+                         MovieVideoSerializer,MovieFrameSerializer,
                          ReviewSerializer,ReviewLikeSerializer,HistorySerializer)
-from .models import (UserProfile,Category,Genre,Country,Director,
-                     Actor,ActorImage,Movie,MovieVideo,MovieFrame,
-                     Review,ReviewLike,History)
+from .models import (UserProfile,Category,Genre,Country,Director,Actor,ActorImage,Movie,MovieVideo,
+                     MovieFrame,Review,ReviewLike,History)
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import viewsets,generics
 from django_filters.rest_framework import DjangoFilterBackend
@@ -62,6 +61,10 @@ class MovieListAPIView(generics.ListAPIView):
     search_fields = ['movie_name']
     ordering_fields= ['year']
     pagination_class = MovieListPagination
+
+class MovieDetailAPIView(generics.RetrieveAPIView):
+    queryset = Movie.objects.all()
+    serializer_class = MovieDetailSerializer
 
 class MovieVideoViewSet(viewsets.ModelViewSet):
     queryset = MovieVideo.objects.all()
