@@ -57,15 +57,15 @@ class Actor(models.Model):
         return self.full_name
 
 class ActorImage(models.Model):
-    actor = models.ForeignKey(Actor,on_delete=models.CASCADE)
+    actor = models.ForeignKey(Actor,on_delete=models.CASCADE,related_name='actor_images')
     image = models.ImageField(upload_to='actor_images/')
 
 class Movie(models.Model):
     movie_name = models.CharField(max_length=150)
     slogan = models.CharField(max_length=200,verbose_name='Слоган',null=True,blank=True )
     year = models.DateField()
-    country = models.ManyToManyField(Country)
-    director = models.ManyToManyField(Director)
+    country = models.ManyToManyField(Country, related_name='country_movies')
+    director = models.ManyToManyField(Director,related_name='director_movies')
     genre = models.ManyToManyField(Genre,related_name='movies')
     MovieTypeChoices = (
         ('360p','360p'),
@@ -75,7 +75,7 @@ class Movie(models.Model):
         ('1080p Ultra','1080p Ultra'))
     movie_type = models.CharField(max_length=30,choices=MovieTypeChoices)
     movie_time = models.PositiveSmallIntegerField()
-    actor = models.ManyToManyField(Actor)
+    actor = models.ManyToManyField(Actor,related_name='actor_movies')
     movie_poster = models.ImageField(upload_to='movie_images/')
     description = models.TextField()
     trailer = models.URLField()
