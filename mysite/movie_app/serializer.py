@@ -1,6 +1,52 @@
 from .models import (UserProfile,Category,Genre,Country,Director,Actor,
                      ActorImage,Movie,MovieVideo,MovieFrame,Review,ReviewLike,History)
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ('first_name','username','password', 'phone_number')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = UserProfile.objects.create_user(**validated_data)
+        return user
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user': {
+                'username': instance.username,
+                'email': instance.email,
+            },
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
+
+
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Неверные учетные данные")
+
+    def to_representation(self, instance):
+        refresh = RefreshToken.for_user(instance)
+        return {
+            'user': {
+                'username': instance.username,
+                'email': instance.email,
+            },
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
 
 class UserProfileListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -117,6 +163,11 @@ class MovieFrameSerializer(serializers.ModelSerializer):
         model = MovieFrame
         fields = ['image']
 
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     created_date = serializers.DateTimeField(format('%d-%m-%Y %H:%M'))
@@ -135,11 +186,20 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     videos = MovieVideoSerializer(many=True, read_only=True)
     frames = MovieFrameSerializer(many=True,read_only=True)
     reviews = ReviewSerializer(many=True,read_only=True)
+    get_avg_rating = serializers.SerializerMethodField()
+    get_count_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
         fields = ['movie_name','slogan','year','country','director','genre','movie_type','movie_time','actor',
-                  'movie_poster','description','trailer','movie_status','videos','frames','reviews']
+                  'movie_poster','description','trailer','movie_status','videos','frames','get_avg_rating',
+                  'get_count_rating','reviews']
+
+    def get_avg_rating(self,obj):
+        return obj.get_avg_rating
+
+    def get_count_rating(self,obj):
+        return obj.get_count_rating()
 
 
 

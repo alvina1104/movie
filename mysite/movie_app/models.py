@@ -84,6 +84,16 @@ class Movie(models.Model):
     def __str__(self):
         return self.movie_name
 
+    def get_avg_rating(self):
+        ratings = self.reviews.all()
+
+        if ratings.exists():
+            return round(sum([i.stars for i in ratings]) / ratings.count(), 2)
+        return 0
+
+    def get_count_rating(self):
+        return self.reviews.count()
+
 class MovieVideo(models.Model):
     movie = models.ForeignKey(Movie,on_delete=models.CASCADE,related_name='videos')
     video_name = models.CharField(max_length=40)
