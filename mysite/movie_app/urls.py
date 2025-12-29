@@ -1,4 +1,4 @@
-from tkinter.font import names
+
 
 from django.urls import path,include
 from .views import (UserProfileListAPIView, UserProfileDetailAPIView,
